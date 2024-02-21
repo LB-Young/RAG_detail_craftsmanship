@@ -1,0 +1,82 @@
+"""
+inputs:[slice12, slice2, slice8, slice10, slice9, slice13, slice19, slice22, slice35, slice3, slice6, slice4]  此顺序为按照相似度排序的结果
+其中每个元素为object，属性no代表当前slice的id（即[12, 2, 8, 10, 9, 13, 19, 22, 35, 3, 6, 4]）
+output:[slice12, slice13, slice2, slice3, slice4, slice8, slice9, slice10, slice19, slice22, slice35, slice6]  此顺序排序结果主要排序的key为相似度，次要key为id
+
+作用：将相邻的切片拼接到一起，并且不会对相似度排序结果产生大的影响
+"""
+def connect_consecutive_numbers(slice_list):
+    result = []
+    sequence = []
+    start_positions = {}
+    slice_list_sorted = sorted(slice_list, key=lambda x:x.no)
+
+    for cur_slice in slice_list_sorted:
+        if not sequence or cur_slice.no == sequence[-1].no + 1:
+            if not sequence:
+                start_positions[cur_slice.no] = fine_index(slice_list, cur_slice)
+            sequence.append(cur_slice)
+        else:
+            result.append(sequence)
+            sequence = [cur_slice]
+            start_positions[cur_slice.no] = fine_index(slice_list, cur_slice)
+    if sequence:
+        result.append(sequence)
+
+    result_sorted = sorted(result, key=lambda x: start_positions[x[0].no])
+    flattened_result = [item for sublist in result_sorted for item in sublist]
+    return flattened_result
+
+
+
+
+
+
+参考：
+"""
+input:[12, 2, 8, 10, 9, 13, 19, 22, 35, 3, 6, 4]
+output:[12, 13, 2, 3, 4, 8, 9, 10, 19, 22, 35, 6]
+"""
+
+def connect_consecutive_numbers(numbers):
+    # Initialize the result list
+    result = []
+    # Temporary storage for the current sequence
+    sequence = []
+    # Track the start of each sequence for later sorting
+    start_positions = {}
+    
+    # First, sort the numbers to make it easier to find consecutive sequences
+    numbers_sorted = sorted(numbers)
+    
+    for number in numbers_sorted:
+        if not sequence or number == sequence[-1] + 1:
+            # If the sequence is empty or the current number is consecutive, add it to the sequence
+            if not sequence: # Record the start position of this sequence
+                start_positions[number] = numbers.index(number)
+            sequence.append(number)
+        else:
+            # If the current number is not consecutive, store the current sequence and start a new one
+            result.append(sequence)
+            sequence = [number]
+            start_positions[number] = numbers.index(number)
+    
+    # Add the last sequence to the result
+    if sequence:
+        result.append(sequence)
+    
+    # Sort the sequences based on their original starting position
+    result_sorted = sorted(result, key=lambda x: start_positions[x[0]])
+    
+    # Flatten the sorted sequences back into a single list
+    flattened_result = [item for sublist in result_sorted for item in sublist]
+    
+    return flattened_result
+
+# Given list
+list1 = [12, 2, 8, 10, 9, 13, 19, 22, 35, 3, 6, 4]
+
+# Perform the operation
+result = connect_consecutive_numbers(list1)
+print(result)
+# [12, 13, 2, 3, 4, 8, 9, 10, 19, 22, 35, 6]
